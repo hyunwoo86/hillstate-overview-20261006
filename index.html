@@ -1,0 +1,540 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>힐스테이트 입주자금 (차량 입주 후)</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--ink:#1c2230;--muted:#667085;--line:#e4e7ec;--car:#2563eb;--car-bg:#eff4ff;--home:#0f766e;--home-bg:#ecfdf8;--in:#067647;--out:#b42318;--warn:#b54708;--warn-bg:#fffaeb;--star:#7a5af8;--star-bg:#f4f3ff;--ok-bg:#ecfdf3;--stage:#f2f4f7}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1115;--card:#171a21;--ink:#e6e8ee;--muted:#98a2b3;--line:#2a2f3a;--car:#7aa2ff;--car-bg:#1a2340;--home:#4fd1b5;--home-bg:#12302a;--in:#47cd89;--out:#f97066;--warn:#fdb022;--warn-bg:#2d2412;--star:#b6a4ff;--star-bg:#231d3d;--ok-bg:#10281c;--stage:#1f232c}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 "Pretendard","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif}
+main{max-width:1080px;margin:0 auto;padding:28px 16px 48px}
+h1{font-size:26px;margin:0 0 4px}
+h2{font-size:19px;margin:32px 0 12px}
+.sub{color:var(--muted);margin:0 0 20px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+.kpi .l{color:var(--muted);font-size:13px}
+.kpi .v{font-size:26px;font-weight:700;margin:4px 0 2px;font-variant-numeric:tabular-nums}
+.kpi .d{color:var(--muted);font-size:13px}
+.kpi.star{background:var(--star-bg);border-color:transparent}.kpi.star .v{color:var(--star)}
+.kpi.ok .v{color:var(--in)}
+.legend{display:flex;flex-wrap:wrap;gap:14px;color:var(--muted);font-size:13px;margin:0 0 10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th,td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-size:12px;color:var(--muted);font-weight:600;white-space:nowrap;background:var(--card)}
+.num{text-align:right;white-space:nowrap}
+.date b{display:block;white-space:nowrap}.date span{color:var(--muted);font-size:12px}
+.muted{color:var(--muted);font-size:13px}
+tr.stage td{background:var(--stage);font-weight:700;font-size:14px;padding-top:12px}
+tr.stage.car td{color:var(--car)}tr.stage.home td{color:var(--home)}
+tr.check td{background:var(--ok-bg);font-weight:600}
+tr.total td{font-weight:700}
+tr.star td{background:var(--star-bg)}tr.star .num{color:var(--star);font-weight:700}
+tr.key td{background:var(--warn-bg);font-weight:600}
+tr.end td{background:var(--ok-bg);font-weight:700}
+.in{color:var(--in);font-weight:600}.out{color:var(--out);font-weight:600}.pass{color:var(--muted);font-weight:600}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.box h3{margin:0 0 8px;font-size:15px}
+.box ul,.box ol{margin:0;padding-left:20px}.box li{margin:4px 0}
+.box.warn{background:var(--warn-bg);border-color:transparent}.box.warn h3{color:var(--warn)}
+.box.star{background:var(--star-bg);border-color:transparent}.box.star h3{color:var(--star)}
+.bar{height:8px;background:var(--line);border-radius:99px;overflow:hidden;min-width:120px;margin:6px 0 2px}.bar i{display:block;height:100%;background:var(--star)}
+.calc{margin-bottom:12px}.inputs{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px 14px}
+.inputs label{display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:600}.inputs small{color:var(--muted);font-weight:400}
+.unit{display:flex;align-items:center;gap:6px}.unit input{flex:1;min-width:0;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit;font-size:15px}.unit em{font-style:normal;color:var(--muted)}
+.actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:12px 0}.actions button{padding:7px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);font:inherit;cursor:pointer}
+.kpis.small{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}.kpis.small .v{font-size:21px}
+.tabs{position:sticky;top:0;z-index:5;display:flex;gap:6px;overflow-x:auto;background:var(--bg);padding:10px 0;margin:4px 0 8px;border-bottom:1px solid var(--line);scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{flex:none;padding:8px 14px;border:1px solid var(--line);border-radius:99px;background:var(--card);color:var(--ink);font:inherit;font-size:14px;cursor:pointer;white-space:nowrap}
+.tabs button[aria-selected="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink);font-weight:600}
+section.tab{display:none}section.tab.on{display:block}
+section.tab>h2:first-child{margin-top:16px}
+@media print{.tabs{display:none}section.tab{display:block!important}}
+footer{margin-top:28px;color:var(--muted);font-size:12px}
+@media print{body{background:#fff;font-size:11px}main{padding:0}.box,.kpi{break-inside:avoid;border-color:#ccc}tr{break-inside:avoid}h2{break-after:avoid}}
+</style>
+</head>
+<body>
+<main>
+<h1>힐스테이트 한눈에 보기 — 차는 입주 후에</h1>
+<p class="sub">2026-10-05 기준 · <b>쏘렌토는 2029-06 입주 후 구매</b> · 청약은 입주 전(2029-05) 해지 · <span id="dSub">가전·리모델링 4천 · 현우 키움은 차량용(입주에 0) · 비상금 2천</span> · 증여세 없음</p>
+<p class="sub">이전 안(차 먼저 구매)은 「힐스테이트_한눈에_보기.html」. 이 파일은 그 안에서 <b>차량 5,385만원만 뺐고</b> (차는 아직 계약 전이라 계약금도 안 나감) 나머지 가정은 같습니다.</p>
+
+<nav class="tabs" role="tablist"><button type="button" role="tab" data-tab="sum">⭐ 요약</button><button type="button" role="tab" data-tab="pay">🏠 분양대금</button><button type="button" role="tab" data-tab="loan">🏦 잔금일·대출</button><button type="button" role="tab" data-tab="flow">📋 전체 흐름</button><button type="button" role="tab" data-tab="save">🧮 저축 계산기</button><button type="button" role="tab" data-tab="pp">💸 미리 갚기</button><button type="button" role="tab" data-tab="etc">🚗 차·통장</button></nav>
+<section class="tab" id="tab-sum" role="tabpanel">
+<div class="kpis">
+ <div class="kpi ok"><div class="l">중도금 6회(2028-10-20)까지 새로 모을 돈</div><div class="v">0원</div><div class="d">지금 있는 통장·만기금·대출로 모두 납부 · 청약도 안 깸</div></div>
+ <div class="kpi star"><div class="l">⭐ 입주까지 월급으로 새로 모을 돈</div><div class="v" id="dGoal">48,797,515원</div><div class="d">2026-10 ~ 2029-05 · 키움 차량용 · 중도금 대출 미리 갚기 반영</div></div>
+ <div class="kpi"><div class="l">매달 모을 돈</div><div class="v" id="dMonthly">월 100만 → 173만</div><div class="d" id="dMonthlyDesc">복직 전(~2027-06) 월 100만 · 복직 후(2027-07~) 월 약 173만</div></div>
+ <div class="kpi"><div class="l">그중 입주에 꼭 필요한 돈</div><div class="v" id="dEss">19,564,490원</div><div class="d" id="dEssDesc">열쇠 받는 날 기준 (보증금은 그 뒤 입금) · 나머지는 가전·비상금</div></div>
+</div>
+
+<p class="muted" style="margin:10px 0 0">숫자는 「🧮 저축 계산기」 탭의 설정 기준입니다.</p>
+<h2>⭐ 꼭 기억할 것</h2>
+<div class="grid2">
+ <div class="box star"><h3>⭐ 3가지</h3><ol>
+  <li><b>2028-10-20 (중도금 6회)까지는 새로 모을 돈 0원.</b> 2·5·6회는 지금 예금으로, 3·4회는 중도금 대출로 냅니다.</li>
+  <li id="mSave"><b>앞으로 모을 돈은 4,880만원 하나입니다.</b></li>
+  <li><b>최종 대출은 주담대 4억 5,868만원 하나</b>입니다. 중도금 대출은 잔금일에 주담대로 갚아 0원이 됩니다.</li>
+  <li><b>차는 입주 후</b> 키움 2,798만원 + 입주 후 저축으로 삽니다.</li>
+ </ol></div>
+ <div class="box warn"><h3>⚠ 지금 확인할 것</h3><ol>
+  <li><b>케이뱅크 C예금 …4068 정확한 만기일</b> (2026-10-20 전이어야 함)</li>
+  <li><b>케이뱅크 F예금:</b> 정확한 만기일 (2028-10-13까지 재예치)</li>
+  <li><b>윤혜 통장 3개</b> (파킹·모니모·새마을금고 입출금) 현재 잔액 — 10/20 2회에 씀</li>
+  <li><b>분양사무소:</b> 2회 10/28 나머지 납부 지연 비용</li>
+  <li><b>은행:</b> 3·4회 집단대출 승인, 맞벌이 기준 주담대 4.6억 사전 상담</li>
+ </ol></div>
+ <div class="box"><h3>➕ 아직 빠진 비용 (약 50만~200만원)</h3><ul>
+  <li>선수관리비 약 50만~100만원</li>
+  <li>주담대 인지세·보증료 (수십만원)</li>
+  <li>중도금 2회 분할 지연 비용 (미정)</li>
+  <li>생기면 비상금에서 나갑니다</li>
+ </ul></div>
+</div>
+
+</section>
+<section class="tab" id="tab-pay" role="tabpanel">
+<h2>🏠 분양대금 얼마나 남았나 (11억 4,670만원)</h2>
+<div class="kpis small">
+ <div class="kpi"><div class="l">지금까지 낸 돈 (2026-10-05)</div><div class="v">229,340,000원</div><div class="d">계약금 + 중도금 1회 · 20%</div></div>
+ <div class="kpi"><div class="l">지금 남은 분양대금</div><div class="v">917,360,000원</div><div class="d">중도금 2~6회 + 잔금 · 80%</div></div>
+ <div class="kpi"><div class="l">6회 끝나면 남는 돈 (2028-10-20)</div><div class="v">344,010,000원</div><div class="d">잔금 30%만 남음</div></div>
+</div>
+<p class="muted" style="margin:10px 0">분양사에 낼 돈은 납부할 때마다 줄어듭니다. 3·4회는 은행이 대신 내서 분양대금은 줄지만 <b>그만큼 중도금 대출이 생깁니다</b>. 💸 미리 갚기는 분양대금은 그대로 두고 대출만 줄입니다. (확장·옵션 잔금은 별도)</p>
+<div class="card"><div class="scroll"><table>
+<thead><tr><th>날짜</th><th>무엇을</th><th class="num">이번에 낸 돈</th><th>누구 · 어느 계좌에서</th><th class="num">남은 분양대금</th><th>낸 비율</th><th class="num">중도금 대출 잔액</th></tr></thead>
+<tbody id="payRows"></tbody></table></div></div>
+
+</section>
+<section class="tab" id="tab-loan" role="tabpanel">
+<h2>🔑 잔금일(2029-06-30) 구조 — 집값을 어떻게 다 내나</h2>
+<div class="grid2">
+ <div class="box star"><h3>집값 1,146,700,000원 = 우리 돈 60% + 은행 40%</h3>
+  <div class="bar" style="height:14px"><i style="width:60%"></i></div>
+  <p class="muted" style="margin:4px 0 0">우리 돈 688,020,000 (60%) · 주택담보대출 458,680,000 (40%)</p>
+  <p style="margin:10px 0 0">집값의 40%는 은행에서 빌려 냅니다. 이 대출은 3·4회 때 빌린 중도금 대출을 갚는 데 먼저 쓰이고, 나머지가 잔금으로 들어갑니다.</p>
+ </div>
+ <div class="box"><h3>입주 후 남는 빚</h3><ul>
+  <li><b>주택담보대출 458,680,000원 하나</b> (중도금 대출은 잔금일에 0원)</li>
+  <li>30년 원리금균등: 월 약 232만원 (4.5%) ~ 275만원 (6%)</li>
+  <li>대출 금액은 집값의 40%로 계산한 값입니다. 승인액은 은행 상담 후 확정됩니다</li>
+ </ul></div>
+</div>
+
+<h3 style="margin:20px 0 8px">잔금일 순서 (계산기 값과 연동)</h3>
+<div class="card"><div class="scroll"><table>
+<thead><tr><th>순서</th><th>내용</th><th>돈의 흐름</th><th class="num">금액</th></tr></thead>
+<tbody>
+<tr><td>①</td><td>주택담보대출 실행</td><td>은행</td><td class="num pass">458,680,000</td></tr>
+<tr><td>②</td><td>남은 중도금 대출 갚기 <span class="muted">(3·4회 등 · 미리 갚은 만큼 줄어듦)</span></td><td>은행 → 은행 (우리 통장 안 거침)</td><td class="num pass" id="rsLoan">197,133,456</td></tr>
+<tr><td>③</td><td>나머지 대출 → 분양잔금 일부</td><td>은행 → 분양사</td><td class="num pass" id="rsRest">261,546,544</td></tr>
+<tr><td>④</td><td>분양잔금 나머지 <span class="muted">(잔금 344,010,000 − ③)</span></td><td>우리 통장 → 분양사</td><td class="num out" id="rsBal">82,463,456</td></tr>
+<tr><td>⑤</td><td>미뤄 둔 중도금 대출이자</td><td>우리 통장 → 분양사/은행</td><td class="num out" id="rsInt">15,259,234</td></tr>
+<tr><td>⑥</td><td>확장 잔금 9,760,000 + 유상옵션 잔금 23,816,000</td><td>우리 통장 → 계약 계좌</td><td class="num out">33,576,000</td></tr>
+<tr class="total"><td colspan="3">이날 우리 통장에서 나가는 돈 (④+⑤+⑥)</td><td class="num" id="rsOut">131,298,690</td></tr>
+<tr><td colspan="3">잔금일 전에 통장에 있는 돈</td><td class="num" id="rsPre">160,531,715</td></tr>
+<tr class="key"><td colspan="3">🔑 완납 → 입주증 → 열쇠 <span class="muted">(통장에 남는 돈 · 이후 보증금 8천 들어와 세금·가전 정산)</span></td><td class="num" id="rsKey">29,233,025</td></tr>
+</tbody></table></div></div>
+
+<h3 style="margin:20px 0 8px">우리 돈 60%는 언제 냈나</h3>
+<div class="card"><div class="scroll"><table>
+<thead><tr><th>시점</th><th>내용</th><th class="num">금액</th></tr></thead>
+<tbody>
+<tr><td>2025-12-24</td><td>계약금</td><td class="num">114,670,000</td></tr>
+<tr><td>2026-04-13</td><td>중도금 1회 <span class="muted">(대출 잔액 10,000원 제외)</span></td><td class="num">114,660,000</td></tr>
+<tr><td>2026-10 · 2028-03 · 2028-10</td><td>중도금 2·5·6회 직접 납부</td><td class="num">344,010,000</td></tr>
+<tr><td>입주 전</td><td>💸 중도금 대출 미리 갚기 <span class="muted">(예금·증여·저축)</span></td><td class="num" id="rsPp">32,216,544</td></tr>
+<tr><td>2029-06-30</td><td>잔금일 현금 (위 ④)</td><td class="num" id="rsBal2">82,463,456</td></tr>
+<tr class="total"><td colspan="2">합계 (집값의 60%)</td><td class="num">688,020,000</td></tr>
+</tbody></table></div></div>
+<p class="muted">미리 갚기를 늘리면 ②와 ④가 같이 줄고 ③이 늘어서, 우리 돈 합계는 항상 688,020,000원입니다. 달라지는 건 ⑤ 이자뿐입니다.</p>
+
+<h2>🏦 최종 대출은 얼마?</h2>
+<div class="kpis">
+ <div class="kpi star"><div class="l">최종 은행 대출 = 주택담보대출</div><div class="v">458,680,000원</div><div class="d">분양가 1,146,700,000 × 40% · 승인 전 계획값</div></div>
+ <div class="kpi"><div class="l">잔금일에 남는 중도금 대출</div><div class="v" id="lnLeftK">162,878,937원</div><div class="d">주담대로 갚아서 잔금일에 0원</div></div>
+ <div class="kpi"><div class="l">잔금일에 통장에 있어야 할 현금</div><div class="v" id="cashNeedK">96,018,851원</div><div class="d">잔금 우리 몫 + 대출이자 + 확장·옵션 잔금</div></div>
+</div>
+
+<h3 style="margin:20px 0 8px">중도금 대출은 왜 이 금액인가 (계산기 값과 연동)</h3>
+<div class="card"><div class="scroll"><table>
+<thead><tr><th>항목</th><th class="num">금액</th></tr></thead>
+<tbody>
+<tr><td>중도금 3회 대출 (2027-03-22)</td><td class="num">114,670,000</td></tr>
+<tr><td>중도금 4회 대출 (2027-10-20)</td><td class="num">114,670,000</td></tr>
+<tr><td>중도금 1회 대출 남은 돈</td><td class="num">10,000</td></tr>
+<tr class="total"><td>원래 대출 합계</td><td class="num">229,350,000</td></tr>
+<tr><td>💸 2027-03-22 미리 갚기 (D예금 남은 돈 + SBI 회전1)</td><td class="num out" id="lnPp1">−15,627,278</td></tr>
+<tr><td>💸 2028-10-20 미리 갚기 (6회 내고 남은 F예금)</td><td class="num out" id="lnPp2">−14,908,145</td></tr>
+<tr><td>💸 증여금으로 미리 갚기</td><td class="num out" id="lnPpG">0</td></tr>
+<tr><td>💸 저축으로 미리 갚기</td><td class="num out" id="lnPpS">−34,222,481</td></tr>
+<tr class="key"><td>잔금일에 남는 중도금 대출 → 주담대로 전부 갚음</td><td class="num" id="lnLeft">162,878,937</td></tr>
+</tbody></table></div></div>
+<p class="muted">미리 갚기는 원금만 줄입니다. 3·4회 대출이자(후불)는 잔금일에 따로 냅니다. 미리 갚기를 해도 <b>주담대 금액은 그대로</b>이고, 대신 잔금일에 낼 현금이 줄어듭니다.</p>
+
+<h3 style="margin:20px 0 8px">분양가를 10칸으로 보면 (한 칸 = 1억 1,467만원)</h3>
+<div class="card"><div class="scroll"><table>
+<thead><tr><th>회차</th><th class="num">비율</th><th>처음 낼 때</th><th>최종적으로</th></tr></thead>
+<tbody>
+<tr><td>계약금 · 중도금 1·2회</td><td class="num">30%</td><td>우리 돈</td><td><b>우리 돈</b></td></tr>
+<tr><td>중도금 3·4회</td><td class="num">20%</td><td>중도금 대출 (은행이 대신 냄)</td><td>잔금일에 주담대로 갚음 → <b>은행 돈</b></td></tr>
+<tr><td>중도금 5·6회</td><td class="num">20%</td><td>우리 돈</td><td><b>우리 돈</b></td></tr>
+<tr><td>잔금</td><td class="num">30%</td><td>잔금일</td><td><b>은행 돈 20% + 우리 돈 10%</b></td></tr>
+<tr class="total"><td>합계</td><td class="num">100%</td><td></td><td>우리 돈 60% · 은행 돈 40%</td></tr>
+</tbody></table></div></div>
+
+<h3 style="margin:20px 0 8px">입주 후 월 상환 (주담대 458,680,000 · 30년 원리금균등)</h3>
+<div class="card"><div class="scroll"><table>
+<thead><tr><th class="num">금리</th><th class="num">월 상환</th><th class="num">30년 동안 내는 이자</th></tr></thead>
+<tbody>
+<tr><td class="num">4.0%</td><td class="num">약 219만원</td><td class="num">약 3.3억</td></tr>
+<tr><td class="num">4.5%</td><td class="num">약 232만원</td><td class="num">약 3.8억</td></tr>
+<tr><td class="num">5.0%</td><td class="num">약 246만원</td><td class="num">약 4.3억</td></tr>
+<tr><td class="num">6.0%</td><td class="num">약 275만원</td><td class="num">약 5.3억</td></tr>
+</tbody></table></div></div>
+
+<div class="grid2" style="margin-top:12px">
+ <div class="box warn"><h3>⚠ 4.59억은 승인액이 아닙니다</h3><ul>
+  <li>잔금대출은 잔금 시점의 <b>KB시세·감정가</b>를 기준으로 할 수 있습니다</li>
+  <li>지역 규제·생애최초 여부에 따라 <b>LTV 비율</b>이 다를 수 있습니다</li>
+  <li>소득이 부족하면 <b>DSR 한도</b>에 걸려 덜 나올 수 있습니다</li>
+  <li>덜 나온 만큼 잔금일 현금이 더 필요합니다 (5천 덜 나오면 모을 돈 약 +5천)</li>
+ </ul></div>
+ <div class="box"><h3>💡 주담대를 줄이려면</h3><ul>
+  <li>잔금일에 현금을 더 준비하면 그만큼 덜 빌릴 수 있습니다</li>
+  <li>예: 3,000만원 더 모으면 4.5% 기준 월 약 15만원, 30년 이자 약 2,500만원 감소</li>
+  <li>은행에 "맞벌이 기준 LTV·DSR 한도" 사전 상담 (복직 후 한 번 더)</li>
+ </ul></div>
+</div>
+
+<h3 style="margin:20px 0 8px">잔금 뒤 60일 안에 나가는 돈</h3>
+<div class="card"><div class="scroll"><table>
+<thead><tr><th>항목</th><th class="num">금액</th></tr></thead>
+<tbody>
+<tr><td>취득세 · 등기</td><td class="num">44,233,025</td></tr>
+<tr><td>이사비</td><td class="num">5,000,000</td></tr>
+<tr><td>가전·가구·리모델링</td><td class="num">40,000,000</td></tr>
+<tr class="total"><td>합계 → 보증금 8,000만원 + 열쇠 받은 뒤 남은 돈으로 냄</td><td class="num">89,233,025</td></tr>
+</tbody></table></div></div>
+
+</section>
+<section class="tab" id="tab-flow" role="tabpanel">
+<h2>📋 전체 흐름 (중도금 2회부터 입주 정산까지)</h2>
+<div class="legend"><span class="in">➕ 들어오는 돈</span><span class="out">➖ 나가는 돈</span><span class="pass">➕➖ 은행이 직접 처리 (우리 통장을 거치지 않음)</span></div>
+<div class="card"><div class="scroll"><table>
+<thead><tr><th>날짜 (의미)</th><th>무엇을</th><th>어느 통장에서 / 어디서</th><th class="num">원래 잔액</th><th class="num">빠져나간·들어온 금액</th><th class="num">남은 금액</th></tr></thead>
+<tbody id="flowRows"></tbody></table></div></div>
+
+</section>
+<section class="tab" id="tab-save" role="tabpanel">
+<h2>🧮 저축 계산기 — 매월 모으는 돈과 누적 금액</h2>
+<p class="muted">여기서 값을 바꾸면 <b>모든 탭</b>의 숫자가 같이 바뀝니다.</p>
+<div class="box calc">
+ <div class="inputs">
+  <label>복직 전 월 저축 <small>(2026-10~2027-06, 9개월)</small><span class="unit"><input id="pre" type="number" min="0" step="10" value="100"><em>만원</em></span></label>
+  <label>복직 후 월 저축 <small>(2027-07~2029-05, 23개월 · 비우면 자동 계산)</small><span class="unit"><input id="post" type="number" min="0" step="10" placeholder="자동"><em>만원</em></span></label>
+  <label>가전·가구·리모델링<span class="unit"><input id="furn" type="number" min="0" step="100" value="4000"><em>만원</em></span></label>
+  <label>남길 비상금<span class="unit"><input id="reserve" type="number" min="0" step="100" value="2000"><em>만원</em></span></label>
+  <label>현우 키움 …3710 중 입주에 쓸 금액 <small>(기본 0 · 차량용 · 현재가 2,798만)</small><span class="unit"><input id="kiwoom" type="number" min="0" step="100" value="0"><em>만원</em></span></label>
+  <label>💸 2027-03-22 중도금 대출 미리 갚기 <small>(D 남은 돈 826만 + SBI 회전1 736만 = 1,563만)</small><span class="unit"><input id="pp1" type="number" min="0" step="100" value="1562.7278"><em>만원</em></span></label>
+  <label>💸 2028-10-20 중도금 대출 미리 갚기 <small>(6회 내고 남은 F 1,491만 · 두 칸 합계 최대 3,054만)</small><span class="unit"><input id="pp2" type="number" min="0" step="100" value="1490.8145"><em>만원</em></span></label>
+  <label>🎁 추가 증여 4천 받는 시점 <small>(앞당기면 받자마자 중도금 대출 미리 갚기)</small><span class="unit"><select id="giftWhen" style="flex:1;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit"><option value="">2029-05 (지금 계획)</option><option value="2027-03-22">2027-03-22 (3회 때)</option><option value="2027-10-20">2027-10-20 (4회 때)</option><option value="2028-10-20">2028-10-20 (6회 때)</option></select></span></label>
+  <label>💸 저축도 미리 갚기 <small>(통장에 남길 현금을 넘는 돈을 주기마다 갚음)</small><span class="unit"><select id="savMode" style="flex:1;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit"><option value="0">안 함</option><option value="6" selected>6개월마다</option><option value="3">3개월마다</option><option value="1">매달</option></select></span></label>
+  <label>저축 통장에 남길 현금 <small>(입주 전 비상용 · 미리 갚기 후에도 유지)</small><span class="unit"><input id="buf" type="number" min="0" step="100" value="1000"><em>만원</em></span></label>
+  <label>빠진 비용 대비 <small>(선수관리비·대출 부대비 등)</small><span class="unit"><input id="extra" type="number" min="0" step="50" value="0"><em>만원</em></span></label>
+ </div>
+ <div class="actions"><button type="button" id="resetCalc">기본값으로</button><span class="muted">순저축 기준 (입주 전 차 유지비 없음) · 이 브라우저에 입력값이 저장됩니다</span></div>
+ <div id="calcSummary" class="kpis small"></div>
+</div>
+<div class="card"><div class="scroll"><table>
+<thead><tr><th>월 (의미)</th><th class="num">이번 달 저축</th><th class="num">누적 금액</th><th>목표 대비</th></tr></thead>
+<tbody id="monthRows"></tbody></table></div></div>
+<script>
+(()=>{
+ // 목표 = 입주 필수 부족분(키움 현재가 기준 −37,416,408: 이전 안 16,437,152 − 차량 53,753,560 − 안 낸 계약금 100,000 + 커플 통장 제외 1,781,121) + 키움 현재가 − 키움 예상액 + 가전 + 비상금 + 빠진 비용
+ const PP_MAX=30535423, BASE=-35635287, KW_NOW=27984141, KEY='hs-glance-car-after-v6';
+ const ids=['pre','post','furn','reserve','kiwoom','extra','pp1','pp2','giftWhen','savMode','buf'], el=Object.fromEntries(ids.map(i=>[i,document.getElementById(i)]));
+ const defaults=Object.fromEntries(ids.map(i=>[i,el[i].value]));
+ const won=n=>Math.round(n).toLocaleString('ko-KR'), man=n=>(Math.round(n/10000)).toLocaleString('ko-KR')+'만';
+ const months=[];for(let y=2026,m=10,i=0;i<32;i++){months.push(`${y}-${String(m).padStart(2,'0')}`);if(++m>12){m=1;y++;}}
+ const notes={'2026-10':'저축 시작 · 외벌이','2027-03':'중도금 3회(대출) · 💸 미리 갚기','2027-06':'복직 전 마지막 달','2027-07':'윤혜 복직','2027-10':'중도금 4회(대출) 달','2028-03':'중도금 5회(A예금) 달','2028-10':'중도금 6회 · 💸 미리 갚기','2029-05':'잔금 1개월 전 · 저축 끝'};
+ try{const v=JSON.parse(localStorage.getItem(KEY)||'{}');ids.forEach(i=>{if(v[i]!==undefined)el[i].value=v[i];});}catch(e){}
+ const val=i=>{const x=parseFloat(el[i].value);return isFinite(x)&&x>=0?x*10000:null;};
+ function render(){
+  try{localStorage.setItem(KEY,JSON.stringify(Object.fromEntries(ids.map(i=>[i,el[i].value]))));}catch(e){}
+  const pre=val('pre')??0, furn=val('furn')??0, reserve=val('reserve')??0, kw=val('kiwoom')??0, extra=val('extra')??0;
+  const P=48734200+40000000+23000000+22272795+8262628, DAY=165385452, AFTER=39226110+5006915+5000000;
+  // 보증금 8천은 열쇠 받은 뒤 들어오므로, 꼭 필요한 돈 = max(열쇠 받는 날 부족분, 전체 부족분)
+  // 미리 갚기: 쓴 돈 PP만큼 입주 전 예금이 줄고, 잔금일 자기부담 잔금도 PP만큼 줄어 상쇄. 순효과 = 아낀 대출이자 SAVE (3.76%, 잔금일 2029-06-30까지)
+  const pp1=Math.min(val('pp1')??0,PP_MAX), pp2=Math.min(val('pp2')??0,PP_MAX-pp1), SAVE1=Math.round(pp1*.0376*831/365)+Math.round(pp2*.0376*253/365);
+  const END=new Date('2029-06-30'), dsave=(x,d)=>Math.round(x*.0376*((END-new Date(d))/864e5)/365);
+  const giftWhen=el.giftWhen.value, ppG=giftWhen?40000000:0, SAVEG=giftWhen?dsave(ppG,giftWhen):0;
+  const savMode=+el.savMode.value, buf=val('buf')??0, LOAN_LEFT=229350000-pp1-pp2-ppG;
+  // 저축 미리 갚기: 주기 끝 달의 다음 달 1일에 (통장 − 남길 현금)을 갚음. 2029-05 저축은 잔금용이라 제외. 목표↔이자절감이 서로 영향 → 절감액이 안 바뀔 때까지 반복
+  const simSav=amts=>{let cash=0,paid=0,sv=0;const pay=amts.map(()=>0);if(savMode)amts.forEach((a,i)=>{cash+=a;if(i<31&&(i+1)%savMode===0){const x=Math.min(Math.max(0,cash-buf),LOAN_LEFT-paid);if(x>0){const [y,m]=months[i].split('-').map(Number);pay[i]=x;paid+=x;cash-=x;sv+=dsave(x,`${m===12?y+1:y}-${String(m%12+1).padStart(2,'0')}-01`);}}});return {pay,paid,sv};};
+  let sim={pay:[],paid:0,sv:0},rawEss,essential,goal,post,amts;const auto=val('post')===null;
+  for(let k=0,prev=-1;k<30&&sim.sv!==prev;k++){
+   prev=sim.sv; const SAVE=SAVE1+SAVEG+sim.sv;
+   rawEss=BASE+KW_NOW-kw+extra-SAVE; essential=Math.max(0,rawEss,DAY-SAVE-kw-P); goal=Math.max(essential,rawEss+furn+reserve);
+   post=auto?Math.max(0,Math.ceil((goal-9*pre)/23)):val('post');
+   amts=months.map((_,i)=>i<9?pre:post); if(auto&&post>0)amts[31]=Math.max(0,goal-amts.slice(0,31).reduce((a,b)=>a+b,0));
+   sim=simSav(amts);
+  }
+  const ppS=sim.paid, SAVES=sim.sv, PP=pp1+pp2+ppG+ppS, SAVE=SAVE1+SAVEG+SAVES;
+  const ppOver=(val('pp1')??0)+(val('pp2')??0)>PP_MAX+1;
+  const total=amts.reduce((a,b)=>a+b,0), gap=total-goal;
+  const marks=[[essential,'✅ 입주 가능 최소액'],[Math.min(goal,essential+reserve),'🛟 + 비상금 확보'],[goal,'⭐ 목표 달성']];
+  let cum=0,bank=0,rows='',year='',hit=new Set(),first={};
+  months.forEach((mo,i)=>{cum+=amts[i];bank+=amts[i]-(sim.pay[i]||0);if(mo.slice(0,4)!==year){year=mo.slice(0,4);rows+=`<tr class="stage home"><td colspan="4">${year}년</td></tr>`;}
+   const tags=[];if(sim.pay[i])tags.push(`💸 ${man(sim.pay[i])} 미리 갚기 → 통장 ${man(bank)}`);marks.forEach(([k,t],j)=>{if(goal>0&&cum>=k&&!hit.has(j)){hit.add(j);tags.push(t);first[j]=mo;}});
+   const pct=goal>0?Math.min(100,cum/goal*100):100,n=notes[mo]||'';
+   rows+=`<tr${tags.length?' class="star"':''}><td class="date"><b>${mo}</b><span>${n?'('+n+')':''}</span></td><td class="num">${won(amts[i])}</td><td class="num"><b>${won(cum)}</b></td><td><div class="bar"><i style="width:${pct.toFixed(1)}%"></i></div><span class="muted">${pct.toFixed(0)}%${tags.length?' · '+tags.join(' · '):''}</span></td></tr>`;});
+  document.getElementById('monthRows').innerHTML=rows;
+  // 위 요약 카드·흐름표·기억할 것도 같은 옵션으로 갱신 (흐름표는 실제 누적 예상액 total 기준)
+  const $=id=>document.getElementById(id), set=(id,t)=>{const e=$(id);if(e)e.textContent=t;};
+  const preCash=kw+P-PP+total, afterKey=preCash-(DAY-PP-SAVE), end=afterKey+80000000-AFTER-extra-furn;
+  // 흐름표: 원래 잔액 → 빠져나간·들어온 금액 → 남은 금액 (1·2단계는 그 통장/대출 잔액, 3~5단계는 입주자금 통장 잔액)
+  const FL=[], mu=t=>`<span class="muted">${t}</span>`;
+  const H=t=>FL.push(`<tr class="stage home"><td colspan="6">${t}</td></tr>`);
+  const R=(d,why,what,acct,before,delta,o={})=>{const after=before+delta, dc=o.pass?'pass':delta>0?'in':delta<0?'out':'pass';
+   const dt=delta>0?'➕ '+won(delta):delta<0?'➖ '+won(-delta):'보관';
+   FL.push(`<tr${o.cls?` class="${o.cls}"`:''}><td class="date"><b>${d}</b>${why?`<span>(${why})</span>`:''}</td><td>${what}</td><td>${acct}</td><td class="num">${won(before)}</td><td class="num ${dc}">${dt}</td><td class="num"><b>${won(after)}</b></td></tr>`);return after;};
+  const T=(t,v,cls)=>FL.push(`<tr class="${cls}"><td colspan="5">${t}</td><td class="num"${v<0?' style="color:var(--out)"':''}>${won(v)}</td></tr>`);
+
+  H('🏠 1단계. 중도금 2회 (1억 1,467만원을 두 번에 나눠 냄) '+mu('· 잔액 = 그 통장'));
+  R('2026-10-20','중도금 2회 납부기한','중도금 2회 먼저','현우 케이뱅크 정기예금 C …4068 '+mu('(10/15 전후 만기 · 확인 필요)'),13130880,-13130880);
+  [['현우 한국투자 …6401',21221],['윤혜 케이뱅크 파킹 …6779',33134000],['윤혜 KB 모니모 …2072',5264621],['윤혜 새마을금고 입출금 …2402',938955]].forEach(([a,b])=>R('〃','','〃',a,b,-b));
+  R('2026-10-28','케이뱅크 B·D 예금 만기일','중도금 2회 나머지','현우 케이뱅크 정기예금 B …5917',60379667,-60379667);
+  R('〃','','〃','현우 케이뱅크 정기예금 D …9866 '+mu('(커플 통장 몫 포함 · 남은 돈은 2027-03-15 만기로 재예치)'),10063284,-1800656);
+  R('F 만기일','확인 필요','F 재예치 '+mu('(→ 2028-10-13 만기)'),'현우 케이뱅크 정기예금 F '+mu('(부모님 증여금)'),39948480,0);
+
+  H('🏠 2단계. 중도금 3~6회 · 대출 미리 갚기 '+mu('· 잔액 = 그 통장, 대출 줄은 중도금 대출 잔액'));
+  const EV=[], LN=mu('(대출 잔액)');
+  const L=(k,d,why,what,acct,delta,cls)=>EV.push({k,loan:1,d,why,what,acct,delta,cls});
+  const A=(k,d,why,what,acct,before,delta)=>EV.push({k,d,why,what,acct,before,delta});
+  L('2027-03-22a','2027-03-22','중도금 3회','중도금 3회 '+mu('(은행이 분양사에 직접 냄)'),'중도금 대출 '+LN,114670000);
+  if(pp1)L('2027-03-22b','2027-03-22','3회 대출 실행 직후','💸 중도금 대출 미리 갚기','현우 케이뱅크 D 남은 돈 + SBI 회전1 …6049 → 대출 '+LN,-pp1,'star');
+  L('2027-10-20a','2027-10-20','중도금 4회','중도금 4회 '+mu('(은행이 직접 냄)'),'중도금 대출 '+LN,114670000);
+  A('2028-03-20a','2028-03-20','중도금 5회','중도금 5회','현우 케이뱅크 정기예금 A …1256 '+mu('(2027-04-29 만기)'),125599665,-114670000);
+  [['현우 케이뱅크 A …1256 남은 돈',10929665,-10929665],['현우 케이뱅크 정기예금 E …8316 '+mu('(2027-05-04 만기)'),4900000,-4900000],['현우 케이뱅크 정기예금 F '+mu('(SBI 회전1 몫 대신)'),39948480,-7364650],['현우 SBI 회전2 …5671 '+mu('(2027-12-11 만기)'),5000000,-5000000],['현우 SBI 복리 …5902 '+mu('(2028-05-25 만기)'),16000000,-16000000],['현우 KB 장기주택마련저축보험 …5264 '+mu('(2027-07-16 만기)'),22800000,-22800000],['윤혜 새마을금고 예금 …4886 '+mu('(2027-06-17 만기)'),30000000,-30000000],['현우 케이뱅크 정기예금 F '+mu('(증여금 일부)'),32583830,-17675685]]
+   .forEach(([a,b,dl],i)=>A('2028-10-20a'+i,i?'〃':'2028-10-20',i?'':'중도금 6회',i?'〃':'중도금 6회',a,b,dl));
+  if(pp2)L('2028-10-20b','2028-10-20','6회 납부 직후','💸 중도금 대출 미리 갚기','현우 케이뱅크 F 남은 돈 → 대출 '+LN,-pp2,'star');
+  if(giftWhen)L(giftWhen+'c',giftWhen,'증여 앞당김','💸 증여금 4천으로 미리 갚기','부모님 증여 → 대출 '+LN,-ppG,'star');
+  sim.pay.forEach((x,i)=>{if(x){const [y,m]=months[i].split('-').map(Number), d=`${m===12?y+1:y}-${String(m%12+1).padStart(2,'0')}-01`;L(d,d,'저축 미리 갚기',`💸 저축 중 ${man(buf)} 넘는 돈 미리 갚기`,'월급 저축 통장 → 대출 '+LN,-x,'star');}});
+  EV.sort((a,b)=>a.k<b.k?-1:a.k>b.k?1:0);
+  let loanBal=10000;
+  EV.forEach(e=>{if(e.loan)loanBal=R(e.d,e.why,e.what,e.acct,loanBal,e.delta,{cls:e.cls,pass:!e.cls});else R(e.d,e.why,e.what,e.acct,e.before,e.delta);});
+  T(`✅ 여기까지는 지금 있는 돈과 대출로 해결 · 새로 모을 돈 0원 · 남은 중도금 대출은 잔금일에 주담대로 갚음`,loanBal,'check');
+
+  H('💰 3단계. 입주 전에 입주자금 통장으로 모으기 '+mu('· 잔액 = 입주자금 통장 (키움 줄만 키움 잔액)'));
+  R('—','입주 후 차 살 때','🚗 차량용으로 보관 '+mu('(계산기에서 입주에 넣은 만큼만 빠짐)'),'현우 키움 …3710 '+mu('(현재가)'),KW_NOW,-kw,{pass:true});
+  let bk=0;
+  if(kw)bk=R('2029-03','키움 매도','키움 매도금 넣기','현우 키움 → 입주자금 통장',bk,kw);
+  bk=R('2029-05','잔금 1개월 전','주식·금 팔기','윤혜 토스 3,743만 + 키움 674만 + 신한 금현물 456만 → 입주자금 통장',bk,48734200);
+  if(!giftWhen)bk=R('2029-05','잔금 1개월 전','추가 증여 받기 '+mu('(증여세 없음)'),'부모님 → 입주자금 통장',bk,40000000);
+  bk=R('2029-05','잔금 1개월 전','청약 해지','현우 KB 청약 …9009 → 입주자금 통장',bk,23000000);
+  if(PP_MAX-pp1-pp2>0)bk=R('2029-05','잔금 1개월 전','F·D 남은 돈 '+mu('(미리 갚고 남은 것)'),'현우 케이뱅크 F·D → 입주자금 통장',bk,PP_MAX-pp1-pp2);
+  bk=R('2026-10 ~ 2029-05','저축 기간','⭐ 월급으로 모은 돈 '+mu(ppS?`(모은 ${man(total)} − 미리 갚은 ${man(ppS)})`:''),`복직 전 월 ${man(pre)} → 복직 후 월 ${auto?'약 ':''}${man(post)}`,bk,total-ppS,{cls:'star'});
+  T('잔금일 전에 입주자금 통장에 있어야 할 돈',bk,'total');
+
+  H('🔑 4단계. 입주 잔금일 '+mu('· 은행 줄은 대출 잔액, 나머지는 입주자금 통장'));
+  const Lf=229350000-PP;
+  const mort=R('2029-06-30','입주 잔금일, 계획용','주담대 실행 → 남은 중도금 대출 갚기','주담대 4억 5,868만 '+mu('(은행이 직접 처리 · 남은 주담대)'),458680000,-Lf,{pass:true});
+  R('〃','','〃','중도금 대출 '+LN,Lf,-Lf,{pass:true});
+  R('〃','','주담대 나머지 → 분양잔금 일부','주담대 '+mu('(은행이 분양사에 직접)'),mort,-mort,{pass:true});
+  bk=R('〃','','분양잔금 나머지 '+mu('(잔금 344,010,000 − 주담대 투입분)'),'입주자금 통장 → 분양사',bk,-(114680000-PP));
+  bk=R('〃','','후불 중도금 이자 '+mu('(미리 갚기로 줄어듦)'),'입주자금 통장 → 분양사 또는 은행',bk,-(17129452-SAVE));
+  bk=R('〃','','발코니 확장 잔금 (80%)','입주자금 통장 → 확장 계약 계좌',bk,-9760000);
+  bk=R('〃','','유상옵션 잔금 (80%)','입주자금 통장 → 옵션 계약 계좌',bk,-23816000);
+  T('🔑 완납 → 입주증 → 열쇠 '+mu('(입주자금 통장에 남은 돈)'),bk,'key');
+
+  H('🏡 5단계. 입주 후 정산 '+mu('· 잔액 = 입주자금 통장'));
+  bk=R('2029-06-30','월세집 퇴거일','월세 보증금 돌려받기','집주인 → 입주자금 통장',bk,80000000);
+  bk=R('~2029-08-29','잔금일로부터 60일 안','취득세 '+mu('(3.3% 가정)'),'법무사 / 구청',bk,-39226110);
+  bk=R('〃','','등기·법무·근저당','법무사',bk,-5006915);
+  bk=R('2029-07','입주 직후','이사비','이사업체',bk,-5000000);
+  if(extra)bk=R('2029-07','입주 전후','빠진 비용 대비 '+mu('(선수관리비·대출 부대비 등)'),'관리사무소 / 은행',bk,-extra);
+  bk=R('2029-07','입주 전후','가전·가구·리모델링','업체별',bk,-furn);
+  const endDesc=bk<0?`⚠ ${won(-bk)}원 모자람 → 가전 줄이기·토스증권 일부로 대비`:bk<reserve?`⚠ 목표 비상금 ${man(reserve)}보다 ${man(reserve-bk)} 적음 · 윤혜 KB 모니모 …2072 보관`:'윤혜 KB 모니모 …2072로 옮겨 보관';
+  FL.push(`<tr class="end"><td class="date"><b>2029-07</b><span>(정산 끝)</span></td><td>🛟 남은 돈 = 비상금</td><td colspan="3">${endDesc}</td><td class="num"${bk<reserve?' style="color:var(--out)"':''}>${won(bk)}</td></tr>`);
+  $('flowRows').innerHTML=FL.join('');
+  // 분양대금 남은 금액 (미리 갚기는 분양대금이 아니라 대출만 줄임)
+  {// 누구 돈: 사람별 계좌와 금액. 여러 계좌면 합계 표시
+   const W=(...g)=>g.map(([n,it])=>`<div style="margin:2px 0"><b>${n}</b> ${it.map(([a,v])=>`${a} ${won(v)}`).join(' · ')}${it.length>1?` <span class="muted">= ${won(it.reduce((t,[,v])=>t+v,0))}</span>`:''}</div>`).join('');
+   const OLD='<span class="muted">현우·윤혜 (이미 냄 · 계좌별 기록 없음)</span>', LOAN='중도금 대출 <span class="muted">(은행이 분양사에 대신 냄)</span>';
+   const PE=[['2025-12-24a','2025-12-24','계약금',114670000,OLD,0],['2026-04-13a','2026-04-13','중도금 1회',114670000,OLD+' <span class="muted">· 대출 1만원 남음</span>',10000],
+   ['2026-10-20a','2026-10-20','중도금 2회 (먼저 낸 부분)',52489677,W(['현우',[['케이뱅크 C예금',13130880],['한국투자',21221]]],['윤혜',[['케이뱅크 파킹',33134000],['KB 모니모',5264621],['새마을금고 입출금',938955]]]),0],
+   ['2026-10-28a','2026-10-28','중도금 2회 (나머지)',62180323,W(['현우',[['케이뱅크 B예금',60379667],['케이뱅크 D예금',1800656]]]),0],
+   ['2027-03-22a','2027-03-22','중도금 3회',114670000,LOAN,114670000],['2027-10-20a','2027-10-20','중도금 4회',114670000,LOAN,114670000],
+   ['2028-03-20a','2028-03-20','중도금 5회',114670000,W(['현우',[['케이뱅크 A예금',114670000]]]),0],
+   ['2028-10-20a','2028-10-20','중도금 6회',114670000,W(['현우',[['케이뱅크 A 남은 돈',10929665],['E예금',4900000],['F예금(증여)',25040335],['SBI 회전2',5000000],['SBI 복리',16000000],['KB 장기주택마련보험',22800000]]],['윤혜',[['새마을금고 예금',30000000]]]),0]];
+   const pp=(k,d,what,x,who)=>x&&PE.push([k,d,'💸 '+what,0,who+' <span class="muted">→ 대출 갚기</span>',-x]);
+   const D_LEFT=8262628;
+   pp('2027-03-22b','2027-03-22','중도금 대출 미리 갚기',pp1,W(['현우',pp1>D_LEFT?[['케이뱅크 D 남은 돈',D_LEFT],['SBI 회전1',pp1-D_LEFT]]:[['케이뱅크 D 남은 돈',pp1]]]));
+   pp('2028-10-20b','2028-10-20','중도금 대출 미리 갚기',pp2,W(['현우',[['케이뱅크 F 남은 돈',pp2]]]));
+   if(giftWhen)pp(giftWhen+'c',giftWhen,'증여금으로 미리 갚기',ppG,W(['현우',[['부모님 증여',ppG]]]));
+   sim.pay.forEach((x,i)=>{if(x){const [y,m]=months[i].split('-').map(Number),d=`${m===12?y+1:y}-${String(m%12+1).padStart(2,'0')}-01`;pp(d,d,'저축으로 미리 갚기',x,W(['현우·윤혜',[['월급 저축 통장',x]]]));}});
+   PE.sort((a,b)=>a[0]<b[0]?-1:a[0]>b[0]?1:0);
+   let rem=1146700000,ln=0,rows='';const TOT=1146700000;
+   const row=(cls,d,what,amt,who,r,l)=>{const pct=(TOT-r)/TOT*100;return `<tr${cls?` class="${cls}"`:''}><td class="date"><b>${d}</b></td><td>${what}</td><td class="num">${amt?won(amt):'—'}</td><td>${who}</td><td class="num"><b>${won(r)}</b></td><td><div class="bar"><i style="width:${pct.toFixed(1)}%"></i></div><span class="muted">${pct.toFixed(0)}%</span></td><td class="num">${won(l)}</td></tr>`;};
+   rows+=`<tr class="stage home"><td colspan="7">분양가 1,146,700,000원에서 시작</td></tr>`;
+   PE.forEach(([k,d,what,amt,who,dl])=>{rem-=amt;ln+=dl;rows+=row(dl<0?'star':'',d,what,amt,who,rem,ln);});
+   rows+=row('key','2029-06-30','잔금 30%',344010000,`<div><b>주담대</b> ${won(229330000+PP)}</div><div><b>입주자금 통장</b> ${won(114680000-PP)}</div>`+`<div class="muted" style="font-size:12px;margin-top:4px">입주자금 통장에 모은 돈: ${[['윤혜','증권 매도 (토스 3,743만·키움 674만·신한 금 456만)',48734200],['현우','청약 해지',23000000]].concat(giftWhen?[]:[['현우','부모님 증여',40000000]]).concat(PP_MAX-pp1-pp2>=1?[['현우','F·D 남은 돈',PP_MAX-pp1-pp2]]:[]).concat(kw?[['현우','키움 매도',kw]]:[]).concat([['현우·윤혜','월급 저축 (미리 갚고 남은 것)',total-ppS]]).map(([n,a,v])=>`${n} ${a} ${won(v)}`).join(' · ')}</div>`+`<div class="muted" style="font-size:12px">중도금 대출 ${won(ln)}도 주담대로 갚음</div>`,0,0);
+   rows+=`<tr class="end"><td colspan="6">✅ 분양대금 완납 · 중도금 대출 0원 → 남는 빚은 주담대 458,680,000원 하나</td><td class="num">0</td></tr>`;
+   $('payRows').innerHTML=rows;}
+  const savDates=(()=>{const ms=months.filter((_,i)=>sim.pay[i]);return ms.length?`${ms[0]} ~ ${ms[ms.length-1]} (${ms.length}번)`:'—';})();
+  set('dSub',`가전·리모델링 ${man(furn)} · 현우 키움 입주 투입 ${man(kw)} · 비상금 ${man(reserve)}`);
+  set('dGoal',won(goal)+'원');
+  set('dMonthly',`월 ${man(pre)} → ${man(post)}`);
+  set('dMonthlyDesc',`복직 전(~2027-06) 월 ${man(pre)} · 복직 후(2027-07~) 월 ${auto?'약 ':''}${man(post)}${auto?'':' (입력값)'}`);
+  set('dEss',won(essential)+'원');
+  set('dEssDesc',`열쇠 받는 날 기준 (보증금은 그 뒤 입금) · 나머지 ${man(Math.max(0,goal-essential))}은 가전·비상금`);
+  set('rsLoan',won(229350000-PP)); set('rsRest',won(229330000+PP)); set('rsBal',won(114680000-PP)); set('rsBal2',won(114680000-PP)); set('rsPp',won(PP));
+  set('rsInt',won(17129452-SAVE)); set('rsOut',won(114680000-PP+17129452-SAVE+33576000)); set('rsPre',won(preCash)); set('rsKey',won(afterKey)); $('rsKey').style.color=afterKey<0?'var(--out)':'';
+  set('lnPp1','−'+won(pp1)); set('lnPp2','−'+won(pp2)); set('lnPpG',ppG?'−'+won(ppG):'0'); set('lnPpS',ppS?'−'+won(ppS):'0'); set('lnLeft',won(229350000-PP)); set('lnLeftK',won(229350000-PP)+'원'); set('cashNeedK',won(114680000-PP+17129452-SAVE+33576000)+'원');
+  // 입주 후 차 자금: 키움 + (모은 저축 − 입주 목표). 목표는 현재 설정 기준
+  {const CAR=53853560, carRow=(label,pm,cls)=>{const tot=9*pre+23*pm, left=tot-goal<1000?0:tot-goal, fund=KW_NOW-kw+left, diff=fund-CAR;
+     return `<tr${cls?` class="${cls}"`:''}><td>${label}</td><td class="num">${won(tot)}</td><td class="num">${won(left)}</td><td class="num"><b>${won(fund)}</b></td><td class="num ${diff>=0?'in':'out'}">${diff>=0?'+':'−'}${won(Math.abs(diff))}</td></tr>`;};
+   const need=Math.ceil((goal+CAR-(KW_NOW-kw)-9*pre)/23);
+   $('carRows').innerHTML=carRow(`입주 목표만 (월 약 ${man(post)})`,post,'')+[2000000,2500000].map(x=>carRow(`월 ${man(x)}`,x,'')).join('')+carRow('월 293만 (원래 저축 계획)',2930000,'star')+carRow(`<b>차까지 딱 맞는 저축: 월 약 ${man(need)}</b>`,need,'key');
+   const fundNow=KW_NOW-kw+Math.max(0,total-goal);
+   set('carNow',won(fundNow)+'원'); set('carNowD',`키움 ${man(KW_NOW-kw)} + 남는 저축 ${man(Math.max(0,total-goal))} · 차값 대비 ${fundNow>=CAR?'+':'−'}${man(Math.abs(fundNow-CAR))}`);}
+  set('ppSave',won(SAVE)+'원'); set('ppSavAmt',won(ppS)); set('ppSavDate',savDates); set('ppSavSave',won(SAVES)); set('ppSaveDesc',`미리 갚은 ${man(PP)}원 (예금 ${man(pp1+pp2)} · 증여 ${man(ppG)} · 저축 ${man(ppS)}) · 후불이자 17,129,452 → ${won(17129452-SAVE)}`);
+  if($('mSave'))$('mSave').innerHTML=`<b>앞으로 모을 돈은 ${man(goal)}원 하나입니다.</b> 복직 전 월 ${man(pre)}, 복직 후 월 ${auto?'약 ':''}${man(post)}. 그중 <b>입주에 꼭 필요한 건 ${man(essential)}원</b>이고, ${man(Math.max(0,goal-essential))}원은 가전·비상금이라 덜 모이면 줄이면 됩니다.`;
+  const res=gap>=0?`<div class="v" style="color:var(--in)">+${man(gap)}</div><div class="d">목표보다 여유</div>`:`<div class="v" style="color:var(--out)">−${man(-gap)}</div><div class="d">모자람 → 가전·비상금 줄이기, 토스증권 일부 순서로 대비</div>`;
+  const reach=j=>first[j]?first[j]:'2029-05까지 미도달';
+  document.getElementById('calcSummary').innerHTML=
+   `<div class="kpi star"><div class="l">목표 (2029-05까지 모을 돈)</div><div class="v">${won(goal)}원</div><div class="d">열쇠 받는 날까지 꼭 필요 ${man(essential)} · 나머지는 가전 ${man(furn)}·비상금 ${man(reserve)} 몫</div></div>`+
+   `<div class="kpi"><div class="l">복직 후 월 저축 ${auto?'(자동 계산)':'(입력값)'}</div><div class="v">${man(post)}원</div><div class="d">복직 전 월 ${man(pre)} × 9개월 후</div></div>`+
+   `<div class="kpi"><div class="l">2029-05 누적 예상</div><div class="v">${won(total)}원</div><div class="d">32개월 합계</div></div>`+
+   `<div class="kpi"><div class="l">목표 대비</div>${res}</div>`+
+   `<div class="kpi ok"><div class="l">💸 미리 갚기로 아낀 대출이자</div><div class="v">${won(SAVE)}원</div><div class="d">${ppOver?'⚠ 합계가 최대 3,054만을 넘어 잘랐습니다':`예금 ${won(SAVE1)} · 증여 ${won(SAVEG)} · 저축 ${won(SAVES)} · 총 ${man(PP)} 미리 갚음`}</div></div>`+
+   `<div class="kpi"><div class="l">✅ 입주 가능 최소액(${man(essential)}) 도달</div><div class="v" style="font-size:20px">${reach(0)}</div><div class="d">🛟 비상금까지 ${reach(1)} · ⭐ 목표 ${reach(2)}</div></div>`;
+ }
+ ids.forEach(i=>{el[i].addEventListener('input',render);el[i].addEventListener('change',render);});
+ document.getElementById('resetCalc').addEventListener('click',()=>{ids.forEach(i=>el[i].value=defaults[i]);render();});
+ // '꼭 기억할 것'은 이 스크립트 뒤에 있으므로 문서를 다 읽은 뒤 첫 계산
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',render);else render();
+})();
+</script>
+
+</section>
+<section class="tab" id="tab-pp" role="tabpanel">
+<h2>💸 중도금 대출 미리 갚기 — 얼마나 이득인가</h2>
+<div class="kpis">
+ <div class="kpi ok"><div class="l">계산기 기준 아끼는 대출이자 (확정)</div><div class="v" id="ppSave">1,870,218원</div><div class="d" id="ppSaveDesc">미리 갚은 3,232만원 · 2029-06-30 후불이자 17,129,452 → 15,259,234</div></div>
+ <div class="kpi"><div class="l">예금에 두었으면 받았을 이자 (추천안, 세후 추정)</div><div class="v">97만~136만원</div><div class="d">연 2.5~3.5% 재예치 가정</div></div>
+ <div class="kpi star"><div class="l">실제 이득 (추천안)</div><div class="v">약 37만~76만원</div><div class="d">대출이자 절감 − 못 받는 예금이자</div></div>
+ <div class="kpi"><div class="l">손익분기 예금금리</div><div class="v">세전 연 4.44%</div><div class="d">대출 3.76% ÷ (1 − 이자소득세 15.4%)</div></div>
+</div>
+
+<h3 style="margin:20px 0 8px">언제, 얼마를 갚느냐에 따른 비교</h3>
+<div class="card"><div class="scroll"><table>
+<thead><tr><th>안</th><th>갚는 날</th><th class="num">금액</th><th class="num">일수</th><th class="num">대출이자 절감</th><th class="num">못 받는 예금이자</th><th class="num">실제 이득</th><th>평가</th></tr></thead>
+<tbody>
+<tr><td>① D만</td><td>2027-03-22</td><td class="num">8,262,628</td><td class="num">831</td><td class="num in">707,317</td><td class="num">40만~56만</td><td class="num">15만~31만</td><td class="muted">가장 안전</td></tr>
+<tr><td>② D + SBI 회전1</td><td>2027-03-22</td><td class="num">15,627,278</td><td class="num">831</td><td class="num in">1,337,763</td><td class="num">75만~105만</td><td class="num">28만~59만</td><td class="muted">F를 안 건드림</td></tr>
+<tr class="star"><td><b>③ 추천: ② + 6회 후 F 남은 돈</b></td><td>2027-03-22 + 2028-10-20</td><td class="num">30,535,423</td><td class="num">831 / 253</td><td class="num"><b>1,726,306</b></td><td class="num">97만~136만</td><td class="num"><b>37만~76만</b></td><td class="muted">최대 금액 · F 중도해지 없음</td></tr>
+<tr><td>④ 전액 3회 때</td><td>2027-03-22</td><td class="num">30,535,423</td><td class="num">831</td><td class="num in">2,613,966</td><td class="num">147만~206만</td><td class="num">56만~114만</td><td class="muted">이득 최대 · F 만기가 3월 전이어야 함 · 외벌이 시기 현금 여유 적음</td></tr>
+<tr><td>⑤ 전액 4회 때</td><td>2027-10-20</td><td class="num">30,535,423</td><td class="num">619</td><td class="num in">1,947,106</td><td class="num">110만~153만</td><td class="num">41만~85만</td><td class="muted">복직 후 현금 여유 확인 뒤</td></tr>
+<tr><td>⑥ 전액 6회 후</td><td>2028-10-20</td><td class="num">30,535,423</td><td class="num">253</td><td class="num in">795,828</td><td class="num">45만~63만</td><td class="num">17만~35만</td><td class="muted">위험 0 · 이득은 가장 작음</td></tr>
+<tr><td>⑦ 증여 4천을 앞당겨 받아 갚기</td><td>2027-03-22</td><td class="num">40,000,000</td><td class="num">831</td><td class="num in">3,424,175</td><td class="num">193만~270만</td><td class="num">73만~150만</td><td class="muted">계산기 🎁 칸 · 부모님 사정에 달림 · 2028-10이면 절감 104만</td></tr>
+<tr><td>⑧ 저축도 6개월마다 갚기</td><td id="ppSavDate">—</td><td class="num" id="ppSavAmt">—</td><td class="num">—</td><td class="num in" id="ppSavSave">—</td><td class="num">—</td><td class="num">절감의 약 40~55%</td><td class="muted">계산기 💸 칸 · 통장에 남길 현금은 유지</td></tr>
+<tr><td>참고: 청약 2,300만 해지 후 갚기</td><td>2027-03-22</td><td class="num">23,000,000</td><td class="num">831</td><td class="num in">1,968,901</td><td class="num">청약 이자만큼</td><td class="num">청약 금리에 따라</td><td class="muted">해지 추징·청약 금리 확인 후 (계산기에는 미포함)</td></tr>
+</tbody></table></div></div>
+<p class="muted">대출이자 절감 = 금액 × 3.76% × 일수 ÷ 365 (잔금일 2029-06-30까지). 일찍, 많이 갚을수록 이득이 큽니다. 계산기의 💸 두 칸을 바꾸면 흐름표·목표액·위 첫 카드가 같이 바뀝니다.</p>
+
+<div class="grid2">
+ <div class="box star"><h3>✅ 이점</h3><ol>
+  <li><b>확정 수익:</b> 갚은 돈만큼 연 3.76% 이자가 확실히 줄어듭니다. 예금으로 이걸 이기려면 세전 연 4.44%가 넘어야 합니다</li>
+  <li><b>입주 때 돈이 덜 듭니다:</b> 2029-06-30에 한꺼번에 내는 후불이자가 173만원 줄고, 그만큼 모을 목표도 줄어듭니다 (복직 후 월 약 8만원)</li>
+  <li><b>열쇠 받는 날 필요한 현금이 늘지 않습니다:</b> 미리 갚은 만큼 주담대가 잔금에 더 들어가 자기부담 잔금도 똑같이 줄어듭니다</li>
+  <li><b>주담대·DSR 영향 없음:</b> 주담대는 집값의 40% 그대로입니다</li>
+  <li><b>관리할 예금이 줄어듭니다:</b> D·SBI·F 재예치와 만기 알림이 없어지고, 만기 후 저금리로 방치될 일도 없습니다</li>
+ </ol></div>
+ <div class="box warn"><h3>⚠ 주의</h3><ol>
+  <li><b>되돌릴 수 없습니다.</b> 갚은 돈은 급할 때 못 꺼냅니다. 2027-03은 외벌이 시기라 ②까지만 하고, F는 6회 뒤에 갚는 ③을 추천합니다</li>
+  <li><b>후불제 정산 방식:</b> 미리 갚을 때 그때까지 쌓인 이자를 바로 내라고 할 수 있습니다. 이득은 같지만 그날 현금이 더 필요합니다</li>
+  <li><b>3회만 일부 자납은 안 될 수 있습니다:</b> 그러면 3회 대출을 전액 받은 뒤 바로 일부를 미리 갚습니다</li>
+  <li>미리 갚아도 <b>비상금 2천·가전 4천 계획은 그대로</b>여야 합니다. 저축이 계획보다 모자라면 2028-10 몫을 줄입니다</li>
+ </ol></div>
+ <div class="box"><h3>📞 대출 은행·분양사무소에 물어볼 것</h3><ol>
+  <li>중도금 집단대출 <b>일부 중도상환</b>이 되나요? 최소 금액과 <b>수수료</b>는요?</li>
+  <li>이자 후불제인데, 일부 갚으면 <b>그때까지 쌓인 이자</b>는 언제 내나요? 갚은 원금의 이자는 바로 멈추나요?</li>
+  <li>3회를 <b>일부만 대출로 실행</b>하고 나머지를 직접 낼 수 있나요?</li>
+  <li>미리 갚은 돈은 <b>어느 회차 대출</b>에서 빠지나요? (금리가 같으면 상관없음)</li>
+ </ol></div>
+ <div class="box"><h3>🗓 추천 실행 순서</h3><ol>
+  <li>2026-10-28: D 남은 돈 8,262,628원을 <b>2027-03-15 만기</b>로 재예치</li>
+  <li>2027-03-06: SBI 회전1 7,364,650원 만기 → 입출금 통장에 보관</li>
+  <li>2027-03-22: 3회 대출 실행 확인 → <b>15,627,278원 미리 갚기</b></li>
+  <li>F는 2028-10-13 만기로 재예치 → 6회 납부 뒤 <b>14,908,145원 미리 갚기</b></li>
+ </ol></div>
+</div>
+
+</section>
+<section class="tab" id="tab-etc" role="tabpanel">
+<h2>🚗 입주 후 쏘렌토 — 차 살 돈이 얼마 남나</h2>
+<div class="kpis">
+ <div class="kpi"><div class="l">차값 (견적)</div><div class="v">53,853,560원</div><div class="d">2029년에 다시 견적 · 종합보험 별도</div></div>
+ <div class="kpi"><div class="l">현우 키움 …3710 (차량용 보관)</div><div class="v">27,984,141원</div><div class="d">현재가 · 본전 약 5,300만</div></div>
+ <div class="kpi star"><div class="l">계산기 설정 기준 차 자금</div><div class="v" id="carNow">27,984,141원</div><div class="d" id="carNowD">키움 + 입주 후 남는 저축</div></div>
+</div>
+
+<h3 style="margin:20px 0 8px">복직 후 월 저축에 따라 차 살 돈 (복직 전 월 저축은 계산기 값)</h3>
+<div class="card"><div class="scroll"><table>
+<thead><tr><th>복직 후 월 저축</th><th class="num">2029-05까지 모은 돈</th><th class="num">입주에 쓰고 남는 저축</th><th class="num">+ 키움 = 차 자금</th><th class="num">차값 대비</th></tr></thead>
+<tbody id="carRows"></tbody></table></div></div>
+<p class="muted">비상금 2,000만원은 차에 쓰지 않습니다. 저축이 늘면 미리 갚기 이자 절감도 조금 늘어 실제로는 약간 더 남습니다.</p>
+
+<div class="grid2" style="margin-top:12px">
+ <div class="box star"><h3>정리</h3><ul>
+  <li><b>복직 후 월 약 293만원</b>을 모으면 입주하면서 차를 현금으로 살 수 있습니다</li>
+  <li>입주에 필요한 만큼만 모으면 차는 <b>약 2,600만원 부족</b> → 입주 후에 모으거나 예산을 낮춤</li>
+  <li>키움이 오르면 저축 부담이 줄어듭니다</li>
+ </ul></div>
+ <div class="box warn"><h3>주의</h3><ul>
+  <li>입주 후 주담대 원리금 월 약 219만(4%)~275만원(6%)이 시작됩니다. 차를 사면 유지비가 겹칩니다</li>
+  <li>입주 전 차량 할부·대출은 주담대 한도를 줄일 수 있어 피합니다</li>
+  <li>중고차·낮은 트림을 키움 금액 안에서 사면 저축 부족분이 없어집니다</li>
+ </ul></div>
+</div>
+
+<h2>🔒 계획에 안 넣은 통장</h2>
+<div class="card"><div class="scroll"><table>
+<thead><tr><th>구분</th><th>누구</th><th>통장</th><th class="num">금액</th></tr></thead>
+<tbody>
+<tr><td rowspan="4">🔒 노후·연금 (안 씀)</td><td>현우</td><td>토스증권</td><td class="num">125,642,760</td></tr>
+<tr><td>현우</td><td>IRP</td><td class="num">64,008,875</td></tr>
+<tr><td>현우</td><td>연금저축</td><td class="num">3,207,986</td></tr>
+<tr><td>윤혜</td><td>퇴직연금 · 연금저축</td><td class="num muted">모름</td></tr>
+<tr><td>🚗 입주 후 차량용</td><td>현우</td><td>키움 위탁종합</td><td class="num">27,984,141</td></tr>
+<tr><td rowspan="4">💳 생활비·소액</td><td>현우</td><td>케이뱅크 커플 통장</td><td class="num">1,781,121</td></tr>
+<tr><td>현우</td><td>입출금 통장 (커플 통장 말고)</td><td class="num">약 2,173,760</td></tr>
+<tr><td>현우</td><td>세이프박스 · 카카오페이 · 기타</td><td class="num">27,335</td></tr>
+<tr><td>윤혜</td><td>청년주택드림 청약</td><td class="num">160,000</td></tr>
+<tr><td rowspan="2">❓ 쓸 수 있는지 확인 필요</td><td>현우</td><td>키움 ISA <span class="muted">(해지 조건 확인)</span></td><td class="num">4,745,937</td></tr>
+<tr><td>윤혜</td><td>청년미래적금 <span class="muted">(만기 2029-08)</span></td><td class="num muted">모름</td></tr>
+</tbody></table></div></div>
+<p class="muted">현우 2026-09-28 토스 기준 · 윤혜 2026-08-11 자산표 기준</p>
+
+</section>
+<footer>예금 이자는 넣지 않았습니다(들어오면 여유). 입주 전에 차량 대출을 받으면 주담대 한도(DSR)가 줄 수 있어 피합니다. 계획용 추정입니다. 실제 저축능력, 대출 승인, 세금 고지액, 입주일(분양사 통보)은 확인 전입니다. 상세 계산은 같은 폴더의 「힐스테이트_중도금_입주_타임라인.html」에 있고, 그 파일은 현우 키움을 0원(제외)으로 계산해서 필요액이 다릅니다. 인쇄: Ctrl+P.</footer>
+</main>
+<script>
+(()=>{const bs=[...document.querySelectorAll('.tabs button')], KEY='hs-car-after-tab';
+ const show=k=>{if(!document.getElementById('tab-'+k))k='sum';bs.forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===k));document.querySelectorAll('section.tab').forEach(s=>s.classList.toggle('on',s.id==='tab-'+k));try{localStorage.setItem(KEY,k);}catch(e){}if(location.hash!=='#'+k)history.replaceState(null,'','#'+k);};
+ bs.forEach(b=>b.addEventListener('click',()=>{show(b.dataset.tab);window.scrollTo({top:0});}));
+ let k=location.hash.slice(1);if(!k){try{k=localStorage.getItem(KEY)||'';}catch(e){}}show(k||'sum');
+})();
+</script>
+
+</body>
+</html>
