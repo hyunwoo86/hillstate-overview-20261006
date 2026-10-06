@@ -177,6 +177,20 @@ footer{margin-top:28px;color:var(--muted);font-size:12px}
 <tr><td>💸 저축으로 미리 갚기</td><td class="num out" id="lnPpS">−34,222,481</td></tr>
 <tr class="key"><td>잔금일에 남는 중도금 대출 → 주담대로 전부 갚음</td><td class="num" id="lnLeft">162,878,937</td></tr>
 </tbody></table></div></div>
+<h3 style="margin:20px 0 8px">3·4회 중도금 대출은 무엇으로 갚나</h3>
+<div class="card"><div class="scroll"><table>
+<thead><tr><th>구분</th><th>내용</th><th class="num">금액</th></tr></thead>
+<tbody>
+<tr><td rowspan="4"><b>① 지금 있는 예금</b><br><span class="muted">2·5·6회 내고 남는 돈 · 확실함</span></td><td>현우 케이뱅크 D 남은 돈 (2027-03-22)</td><td class="num" id="rpD">8,262,628</td></tr>
+<tr><td>현우 SBI 회전1 (2027-03-22)</td><td class="num" id="rpS">7,364,650</td></tr>
+<tr><td>현우 케이뱅크 F 남은 돈 · 증여금 (2028-10-20)</td><td class="num" id="rpF">14,908,145</td></tr>
+<tr class="total"><td>소계</td><td class="num" id="rp1">30,535,423</td></tr>
+<tr id="rpGRow" hidden><td><b>증여금</b></td><td id="rpGD">부모님 증여 (앞당겨 받음)</td><td class="num" id="rpG">0</td></tr>
+<tr><td><b>② 앞으로 모을 월급 저축</b><br><span class="muted">저축 계획대로 모일 때</span></td><td id="rpSavD">6개월마다 통장에 1,000만 넘는 돈 (4번)</td><td class="num" id="rp2">35,935,640</td></tr>
+<tr><td><b>③ 잔금일 주담대</b></td><td>나머지 전부 (2029-06-30)</td><td class="num" id="rp3">162,878,937</td></tr>
+<tr class="key"><td colspan="2">합계 = 중도금 대출 (3회 + 4회 + 1회 남은 1만원)</td><td class="num">229,350,000</td></tr>
+</tbody></table></div></div>
+<p class="muted">①·②는 잔금일에 낼 돈을 <b>미리 내서 이자를 줄이는 것</b>입니다. 미리 갚지 않고 통장에 두었다가 잔금일에 내도 우리 돈 총액은 같고 이자만 더 냅니다. ②가 덜 모이면 ③이 늘고 잔금일 현금도 그만큼 더 필요합니다.</p>
 <p class="muted">미리 갚기는 원금만 줄입니다. 3·4회 대출이자(후불)는 잔금일에 따로 냅니다. 미리 갚기를 해도 <b>주담대 금액은 그대로</b>이고, 대신 잔금일에 낼 현금이 줄어듭니다.</p>
 
 <h3 style="margin:20px 0 8px">분양가를 10칸으로 보면 (한 칸 = 1억 1,467만원)</h3>
@@ -398,6 +412,9 @@ footer{margin-top:28px;color:var(--muted);font-size:12px}
   set('dEssDesc',`열쇠 받는 날 기준 (보증금은 그 뒤 입금) · 나머지 ${man(Math.max(0,goal-essential))}은 가전·비상금`);
   set('rsLoan',won(229350000-PP)); set('rsRest',won(229330000+PP)); set('rsBal',won(114680000-PP)); set('rsBal2',won(114680000-PP)); set('rsPp',won(PP));
   set('rsInt',won(17129452-SAVE)); set('rsOut',won(114680000-PP+17129452-SAVE+33576000)); set('rsPre',won(preCash)); set('rsKey',won(afterKey)); $('rsKey').style.color=afterKey<0?'var(--out)':'';
+  {const D_L=8262628, d=Math.min(pp1,D_L); set('rpD',won(d)); set('rpS',won(pp1-d)); set('rpF',won(pp2)); set('rp1',won(pp1+pp2));
+   $('rpGRow').hidden=!ppG; set('rpG',won(ppG)); set('rpGD',`부모님 증여 (${giftWhen} 앞당겨 받음)`);
+   set('rp2',won(ppS)); set('rpSavD',ppS?`${savDates} · 통장에 ${man(buf)} 넘는 돈`:'저축 미리 갚기 안 함'); set('rp3',won(229350000-PP));}
   set('lnPp1','−'+won(pp1)); set('lnPp2','−'+won(pp2)); set('lnPpG',ppG?'−'+won(ppG):'0'); set('lnPpS',ppS?'−'+won(ppS):'0'); set('lnLeft',won(229350000-PP)); set('lnLeftK',won(229350000-PP)+'원'); set('cashNeedK',won(114680000-PP+17129452-SAVE+33576000)+'원');
   // 입주 후 차 자금: 키움 + (모은 저축 − 입주 목표). 목표는 현재 설정 기준
   {const CAR=53853560, carRow=(label,pm,cls)=>{const tot=9*pre+23*pm, left=tot-goal<1000?0:tot-goal, fund=KW_NOW-kw+left, diff=fund-CAR;
